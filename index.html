@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>물품 대여 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: #2d3748;
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #4a5568;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            color: white;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .tab-btn:hover, .tab-btn.active {
+            background: #3182ce;
+        }
+
+        .content-section {
+            padding: 30px;
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button.submit-btn {
+            background: #3182ce;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button.submit-btn:hover {
+            background: #2b6cb0;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+
+        .modal-content p {
+            margin-bottom: 20px;
+            color: #4a5568;
+            line-height: 1.5;
+            text-align: left;
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3182ce;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-agree {
+            background: #3182ce;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>학생회 물품 대여 시스템</h1>
+        </header>
+        
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('items')">물품 목록</button>
+            <button class="tab-btn" onclick="checkRentalAuth(event)">물품 대여</button>
+            <button class="tab-btn" onclick="switchTab('status')">대여 현황</button>
+        </div>
+
+        <!-- 1. 물품 목록 탭 -->
+        <div id="items" class="content-section active">
+            <h2>대여 가능 물품</h2>
+            <p style="margin-top: 10px; color: #666;">현재 대여 가능한 물품 리스트입니다.</p>
+        </div>
+
+        <!-- 2. 물품 대여 탭 -->
+        <div id="rental" class="content-section">
+            <h2>물품 대여 신청</h2>
+            <form style="margin-top: 20px;" onsubmit="alert('대여 신청이 완료되었습니다!'); return false;">
+                <div class="form-group">
+                    <label>학과 선택</label>
+                    <select required>
+                        <option value="">-- 학과를 선택하세요 --</option>
+                        <option value="회계학과">회계학과</option>
+                        <option value="무역학과">무역학과</option>
+                        <option value="경영학과">경영학과</option>
+                        <option value="경제학과">경제학과</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>학번</label>
+                    <input type="text" placeholder="학번을 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label>이름</label>
+                    <input type="text" placeholder="이름을 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label>대여 물품</label>
+                    <input type="text" placeholder="대여할 물품명을 입력하세요" required>
+                </div>
+                <button type="submit" class="submit-btn">대여 신청하기</button>
+            </form>
+        </div>
+
+        <!-- 3. 대여 현황 탭 -->
+        <div id="status" class="content-section">
+            <h2>대여 현황 조회</h2>
+            <p style="margin-top: 10px; color: #666;">현재 대여 중인 내역을 확인합니다.</p>
+        </div>
+    </div>
+
+    <!-- 대여 전 안내 모달 팝업 -->
+    <div id="rentalModal" class="modal">
+        <div class="modal-content">
+            <h2>⚠️ 대여 전 유의사항 안내</h2>
+            <p>
+                1. 분실시 개인이 비용을 지불해야 합니다.<br>
+                2. 연체시 연체 기간만큼 대여가 불가능합니다.
+            </p>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModal()">취소</button>
+                <button class="btn-agree" onclick="agreeModal()">동의하고 대여하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            
+            if(tabId === 'items') document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            if(tabId === 'rental') document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            if(tabId === 'status') document.querySelectorAll('.tab-btn')[2].classList.add('active');
+        }
+
+        function checkRentalAuth(event) {
+            document.getElementById('rentalModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('rentalModal').style.display = 'none';
+        }
+
+        function agreeModal() {
+            document.getElementById('rentalModal').style.display = 'none';
+            switchTab('rental');
+        }
+    </script>
+</body>
+</html>
